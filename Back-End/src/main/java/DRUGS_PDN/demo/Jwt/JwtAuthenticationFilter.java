@@ -29,6 +29,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
 
+                System.out.println("✅ Entrando en el filtro JWT...");
+                
         final String token = getTokenFromRequest(request);
         final String username;
 
@@ -41,6 +43,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         if(username!=null && SecurityContextHolder.getContext().getAuthentication()==null)
         {
+            System.out.println("🔍 Buscando usuario en DB con username extraído del token: " + username);
             UserDetails userDetails = userDetailsService.loadUserByUsername(username);
 
             if(jwtService.isTokenValid(token, userDetails))
