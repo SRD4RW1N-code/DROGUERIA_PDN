@@ -29,28 +29,31 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
 
-                System.out.println("✅ Entrando en el filtro JWT...");
-                
+        System.out.println("Entrando en el filtro JWT...");
+        System.out.println("Método HTTP: " + request.getMethod());
+        System.out.println("URL solicitada: " + request.getRequestURI());
+
         final String token = getTokenFromRequest(request);
-        final String username;
+        System.out.println("Token extraído: " + (token != null ? token : "No se encontró token"));
+        final String email;
 
         if (token == null) {
             filterChain.doFilter(request, response);
             return;
         }
 
-        username=jwtService.getUsernameFromToken(token);
+        email=jwtService.getUsernameFromToken(token);
 
-        if(username!=null && SecurityContextHolder.getContext().getAuthentication()==null)
+        if(email!=null && SecurityContextHolder.getContext().getAuthentication()==null)
         {
-            System.out.println("🔍 Buscando usuario en DB con username extraído del token: " + username);
-            UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+            System.out.println("🔍 Buscando usuario en DB con username extraído del token: " + email);
+            UserDetails userDetails = userDetailsService.loadUserByUsername(email);
 
             if(jwtService.isTokenValid(token, userDetails))
             {
                 UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
-                    userDetails, 
-                    null, 
+                    userDetails,
+                    null,
                     userDetails.getAuthorities());
 
                 authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
